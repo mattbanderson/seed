@@ -4,10 +4,9 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"os"
 	"os/exec"
-	"strings"
 	"github.com/xeipuuv/gojsonschema"
+	"os"
 )
 
 func main() {
@@ -47,7 +46,7 @@ func GetArgs() (string, string) {
 // Execute 'docker inspect' to parse Dockerfile and get json LABEL info from stdout
 func DockerInspect(dockerImage string) []byte {
 	cmd := "docker"
-	args := []string{"inspect", "--format='{{json .Config.Labels}}'", dockerImage}
+	args := []string{"inspect", "--format={{json .Config.Labels}}", dockerImage}
 	out, err := exec.Command(cmd, args...).Output()
 	if err != nil {
 		fmt.Println("An error occurred!")
@@ -59,8 +58,7 @@ func DockerInspect(dockerImage string) []byte {
 
 // Convert stdout to string, drop leading single quote, parse into a map, and retrieve Seed info by key
 func ParseLabel(stdout []byte, seedManifestKey string) string {
-	outputString := string(stdout)
-	outputJson := strings.Replace(outputString, "'", "", 1)
+	outputJson := string(stdout)
 	labelMap := make(map[string]string)
 	err := json.Unmarshal([]byte(outputJson), &labelMap)
 	if err != nil {
